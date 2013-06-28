@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	/*******************************************************************************
-	 * Licensed Materials - Property of IBM
-	 * (c) Copyright IBM Corporation 2013. All Rights Reserved. 
-	 * 
-	 * Note to U.S. Government Users Restricted Rights:  Use, 
-	 * duplication or disclosure restricted by GSA ADP Schedule 
-	 * Contract with IBM Corp.
-	 *******************************************************************************/
--->
+
 <project name="PhoneBookExample-build" default="all">
 	<import file="../ant_build/public_imports/ide_imports.xml"/>
 		
@@ -25,12 +16,6 @@
 	<property name="library-file" value="${eclipse_home}/plugins/org.eclipse.test_3.3.100/library.xml"/>
 
 
-	<property name="icap_java_feature" value="com.ibm.ws.icap.dt.java.feature.feature.group" />
-	<property name="icap_javascript_feature" value="com.ibm.ws.icap.dt.js.feature.feature.group" />
-	<property name="icap_mobile_feature" value="com.ibm.ws.icap.dt.mobile.feature.feature.group" />
-	<property name="icap_dt_FAT_feature" value="com.ibm.ws.icap.dt.fat.feature.feature.group" />
-	<property name="product_feature" value="PhoneBookExample.feature.feature.group" />
-	<property name="test_feature" value="PhoneBookExample.ut.feature.feature.group" />
 	
 	<property name="eclipse_testframework_repo"  value="file:/home/ku/eclipseUT/eclipse-test-framework-3.7.2" />
 	<property name="product_repo"  value="file:/home/ku/eclipseUT/pde/PhoneBookExample-build/p2/product" />
@@ -318,55 +303,13 @@
 				message="target installIcapFeature end, installResultProp=${installResultProp}" />
 	</target>
 	
-	<!-- 
-	<target name="runFAT">
-		<ant target="ui-test" antfile="${library-file}" dir="${eclipse_home}">
-			<property name="data-dir"     value="build"/>
-			<property name="plugin-name"  value="com.ibm.ws.icap.dt.fat"/>
-			<property name="classname"    value="com.ibm.ws.icap.dt.fat.cases.ExportImportTest"/>
-		</ant>
-	</target>
-	 -->
 	
-	<target name="runFAT">
-		<ant target="ui-test" antfile="${library-file}" dir="${eclipse_home}">
-			<property name="data-dir"     value="build"/>
-			<property name="plugin-name"  value="com.ibm.ws.icap.dt.fat"/>
-			<property name="classname"    value="com.ibm.ws.icap.dt.fat.cases.AllTests"/>
-			
-			<property name="os"    value="linux"/>
-			<property name="ws"    value="gtk"/>
-			<property name="arch"    value="x86_64"/>
-			<property name="vmargs" value=""/>
-		</ant>
-	</target>
 	
 
 	<target name="all">
 		
-		<!-- 
 		
 		<antcall target="init"/>
-		
-		<antcall target="installEclipseTestFramework"/>
-		<antcall target="installIcapFeatures"/>
-		
-		<antcall target="installEclipseTestFramework"/>
-		<antcall target="installProduct"/>
-		<antcall target="installTest"/>
-		
-		<antcall target="installEclipseTestFramework"/>
-		<antcall target="installIcapFeatures"/>
-		
-		<antcall target="installEclipseTestFramework"/>
-		<antcall target="installIcapFeatures"/>
-		<antcall target="installIDEFat"/>
-		
-		<antcall target="runFAT"/>
-		 -->
-		
-		<antcall target="init"/>
-		<antcall target="installIcapFeatures"/>
 		
 		
 

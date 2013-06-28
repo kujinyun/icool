@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	/*******************************************************************************
-	 * Licensed Materials - Property of IBM
-	 * (c) Copyright IBM Corporation 2013. All Rights Reserved. 
-	 * 
-	 * Note to U.S. Government Users Restricted Rights:  Use, 
-	 * duplication or disclosure restricted by GSA ADP Schedule 
-	 * Contract with IBM Corp.
-	 *******************************************************************************/
--->
 <project name="PhoneBookExample-build" default="all">
-	<import file="../ant_build/public_imports/ide_imports.xml"/>
-		
 	<property name="eclipse.zip" value="D:/Java/eclipse/eclipse-jee-indigo-SR2-win32-x86_64.zip"/>
 	<property name="workspace.dir" value="${basedir}/.."/>
 	
@@ -23,16 +11,9 @@
 	<property name="org.eclipse.test" value="3.3.100"/>
 	<property name="library-file" value="${eclipse_home}/plugins/org.eclipse.test_3.3.100/library.xml"/>
 
-
-	<property name="icap_java_feature" value="com.ibm.ws.icap.dt.java.feature.feature.group" />
-	<property name="icap_javascript_feature" value="com.ibm.ws.icap.dt.js.feature.feature.group" />
-	<property name="icap_mobile_feature" value="com.ibm.ws.icap.dt.mobile.feature.feature.group" />
-	<property name="icap_dt_FAT_feature" value="com.ibm.ws.icap.dt.fat.feature.feature.group" />
 	
 	<property name="eclipsetestplugins_repo"  value="file:/D:/eclipse-test-framework-3.7.2" />
 	
-	<property name="public_icap_repo" value="http://9.181.128.122/releases/latest/IDE" />
-	<property name="icap_test_repo" value="file:/D:/workspaces/IDE10/com.ibm.ws.icap.dt.fat/p2" />
 	
 	<property name="indigo_repo" value="http://download.eclipse.org/releases/indigo" />	
 	<property name="indigo_updates_repo" value="http://download.eclipse.org/eclipse/updates/3.7" />
