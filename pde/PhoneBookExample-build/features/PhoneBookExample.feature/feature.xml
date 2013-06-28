@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed Materials - Property of IBM
+  
+  @ Copyright IBM Corp. 2013 All Rights Reserved
+  
+  US Government Users Restricted Rights - Use, duplication or disclosure restricted by GSA ADP 
+  Schedule Contract with IBM Corp.
+-->
+<feature
+      id="PhoneBookExample.feature"
+      label="PhoneBookExample.feature"
+      version="${build.version}"
+      provider-name="IBM"
+      >
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+	
+   <plugin
+         id="PhoneBookExample"
+         download-size="0"
+         install-size="0"
+         version="${build.version}"
+         unpack="false"/>
+
+
+         
+
+
+
+</feature>

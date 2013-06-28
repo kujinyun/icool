@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="generate.p2" default="build">
+
+	<property name="current.dir" value="." />
+	<property name="site.output" value="${basedir}/../site/output" />
+	<property name="p2.dir" value="${basedir}/../p2/${repo.name}" />	
+	
+	<property file="build.properties" />	
+	
+	<target name="build" depends="site2p2, zipP2Metadata" />
+
+	<target name="site2p2" description="Convert ICAP test site to p2 repository">
+		<mkdir dir="${p2.dir}"/>
+		<makeurl file="${p2.dir}" property="m2.repository.url" />
+		<p2.publish.featuresAndBundles
+			repository="${m2.repository.url}" publishArtifacts="true" compress="false"
+			source="${site.output}"  />
+	</target>	
+	
+	<target name="zipP2Metadata">
+		<jar basedir="${p2.dir}" destfile="${p2.dir}/content.jar" includes="content.xml" keepcompression="true" compress="true" update="false"/>
+		<jar basedir="${p2.dir}" destfile="${p2.dir}/artifacts.jar" includes="artifacts.xml" keepcompression="true" compress="true" update="false"/>
+		<delete file="${p2.dir}/content.xml"/>
+		<delete file="${p2.dir}/artifacts.xml"/>
+		
+	</target>
+</project>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PhoneBookExample" default="build">
+	<property name="plugin.target.dir" value="${basedir}/../PhoneBookExample-build/plugins/target"/>
+	<import file="../ant_build/public_imports/ide_imports.xml"/>
+	
+	
+	
+</project>

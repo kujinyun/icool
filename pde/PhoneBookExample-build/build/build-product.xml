@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	/*******************************************************************************
+	 * Licensed Materials - Property of IBM
+	 * (c) Copyright IBM Corporation 2013. All Rights Reserved. 
+	 * 
+	 * Note to U.S. Government Users Restricted Rights:  Use, 
+	 * duplication or disclosure restricted by GSA ADP Schedule 
+	 * Contract with IBM Corp.
+	 *******************************************************************************/
+-->
+<project name="PhoneBookExample-build" default="all">
+			
+	<property name="eclipse.zip" value="D:/Java/eclipse/eclipse-jee-indigo-SR2-win32-x86_64.zip"/>
+	<property name="workspace.dir" value="${basedir}/.."/>
+	
+	<property name="eclipse_home" value="${workspace.dir}/eclipse"/>
+	<property name="eclipse-home" value="${eclipse_home}"/> <!--for library.xml -->
+	
+	<property name="java.home" value="C:/IBM/Java60"/>	
+	
+	<property name="org.eclipse.test" value="3.3.100"/>
+	<property name="library-file" value="${eclipse_home}/plugins/org.eclipse.test_3.3.100/library.xml"/>
+
+
+	<property name="icap_java_feature" value="com.ibm.ws.icap.dt.java.feature.feature.group" />
+	<property name="icap_javascript_feature" value="com.ibm.ws.icap.dt.js.feature.feature.group" />
+	<property name="icap_mobile_feature" value="com.ibm.ws.icap.dt.mobile.feature.feature.group" />
+	<property name="icap_dt_FAT_feature" value="com.ibm.ws.icap.dt.fat.feature.feature.group" />
+	
+	<property name="eclipsetestplugins_repo"  value="file:/D:/eclipse-test-framework-3.7.2" />
+	
+	<property name="public_icap_repo" value="http://9.181.128.122/releases/latest/IDE" />
+	<property name="icap_test_repo" value="file:/D:/workspaces/IDE10/com.ibm.ws.icap.dt.fat/p2" />
+	
+	<property name="indigo_repo" value="http://download.eclipse.org/releases/indigo" />	
+	<property name="indigo_updates_repo" value="http://download.eclipse.org/eclipse/updates/3.7" />
+	<property name="indigo_mylin_repo" value="http://download.eclipse.org/mylin/releases/indigo" />
+	<property name="indigo_webtools_repo" value="http://download.eclipse.org/webtools/repository/indigo" />
+
+	
+	<target name="init">
+		<available property="eclipse.exist" file="${eclipse_home}" type="dir" />
+		<!--
+		<if if="eclipse.exist">		
+			<delete dir="${eclipse_home}"/>
+		</if>		
+		
+		<unzip dest="${workspace.dir}" src="${eclipse.zip}"/>
+		-->
+		
+		<path id="launcher.paths">
+	        <fileset dir="${eclipse_home}" includes="plugins/org.eclipse.equinox.launcher_*" />
+		</path>
+	    <property name="launcherPath" refid="launcher.paths" />
+	</target>
+		
+	<target
+	        name="junit"
+	        unless="skip.test">
+	        <antcall target="setup">
+	        </antcall>
+	        <property file="finalPluginsVersions.properties" />
+	       
+	        <property
+	            name="junit-stylesheet"
+	            value="${eclipse_home}/plugins/org.eclipse.test_${org.eclipse.test}/JUNIT.XSL" />
+	        <echo>trying to find ${testPlugin}_*</echo>
+	        <fileset
+	            id="test.plugin.file"
+	            dir="${eclipse_home}/plugins">
+	            <filename name="${testPlugin}_*/test.xml" />
+	        </fileset>
+	        <property
+	            name="testPluginX"
+	            refid="test.plugin.file" />
+	        <echo>trying to find ${testPluginX}</echo>
+	        <condition
+	            property="pluginexists"
+	            value="true">
+	            <not>
+	                <equals
+	                    arg1="${testPluginX}"
+	                    arg2="" />
+	            </not>
+	        </condition>
+	        <antcall target="runSuite" />
+	        <antcall target="genResults" />
+	</target>
+	
+	<macrodef name="runTests">
+	        <attribute name="testPlugin" />
+	        <sequential>
+	            <antcall target="markCurrentTime">
+	                <param
+	                    name="message"
+	                    value="start @{testPlugin}" />
+	            </antcall>
+				<!--alwasy use eclipse executable to launch tests with the exception of performance tests-->
+				<!--condition property="useEclipseExe" value="true">
+					<not>
+						<equals arg1="${test.target}" arg2="performance"/>
+					</not>
+				</condition-->
+
+	            <condition
+	                property="performance.target.present"
+	                value="true">
+	                <isset property="@{testPlugin}.has.performance.target" />
+	            </condition>
+
+				<!--override the value of this property with performance if the tests run on performance machine-->
+	            <property
+	                name="test.target"
+	                value="junit" />
+	            <property
+	                name="report"
+	                value="@{testPlugin}" />
+
+				<!--install db plug-ins if running performance tests-->
+	            <condition
+	                property="derby"
+	                value="eclipse/dropins/eclipse/plugins/org.apache.derby*/**">
+	                <equals
+	                    arg1="${test.target}"
+	                    arg2="performance" />
+	            </condition>
+				<!--	<property name="derby" value="" />  -->
+				<!--			<param name="testPlugin" value="${@{testPlugin}}" /> -->
+	            <antcall target="${test.target}">
+	                <param
+	                    name="testPlugin"
+	                    value="@{testPlugin}" />
+	                <param
+	                    name="output-file"
+	                    value="@{testPlugin}.xml" />
+	            </antcall>
+	            <antcall target="markCurrentTime">
+	                <param
+	                    name="message"
+	                    value="end @{testPlugin}" />
+	            </antcall>
+	        </sequential>
+	</macrodef>
+	
+	<target name="installEclipseTestFramework" description="install Eclipse Plugin Test Framework">
+		<echo>-installIU org.eclipse.test , using ${launcherPath} +</echo>
+		<java classname="org.eclipse.core.launcher.Main" fork="true" output="${basedir}/logs/director.log">
+            <classpath>
+                <fileset dir="${eclipse_home}/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+            </classpath>
+            <arg value="-application" />
+            <arg value="org.eclipse.equinox.p2.director" />
+	 		<arg
+			     line="-installIUs org.eclipse.test,org.eclipse.ant.optional.junit,org.eclipse.test.performance,org.eclipse.test.performance.win32,org.easymock" />
+			           
+            <arg line="-roaming" />
+            <arg line="-profile SDKProfile" />
+            <arg line="-repository ${eclipsetestplugins_repo},${indigo_repo},${indigo_updates_repo},${indigo_mylin_repo},${indigo_webtools_repo}" />
+            <arg line="-destination ${eclipse_home}" />
+            <arg line="-bundlepool ${eclipse_home}" />
+		            
+		</java>
+		
+		<!--
+		        <java
+		            jar="${launcherPath}"
+		            failonerror="false"
+		            dir="${eclipse_home}"
+		            timeout="900000"
+		            fork="true"
+		            output="${basedir}/director.log"
+		            resultproperty="directorcode">
+		            <arg line="-vm ${java.home}/bin/java" />
+		            <arg line="-application org.eclipse.equinox.p2.director" />
+		            <arg line="-consoleLog" />
+		            <arg line="-flavor tooling" />
+		            <arg
+		                line="-installIUs org.eclipse.test,org.eclipse.ant.optional.junit,org.eclipse.test.performance,org.eclipse.test.performance.win32,org.easymock" />
+		           
+		            <arg line="-roaming" />
+		            <arg line="-profile SDKProfile" />
+		            <arg line="-repository ${eclipsetestplugins_repo}" />
+		            <arg line="-destination ${eclipse_home}" />
+		            <arg line="-bundlepool ${eclipse_home}" />
+		        </java>
+		        -->
+	</target>
+	
+	<target name="installIcapFeatures" description="Install All ICAP IDE features and plugins">
+		<tstamp />
+		<echo message="target installIcapFeatures start at ${DSTAMP}_${TSTAMP}" />
+		<!--
+		<exec executable="${eclipse_home}/eclipse" output="logs/install_out.txt"
+				error="logs/install_err.txt" resultproperty="installResultProp">
+			<arg value="-application" />
+			<arg value="org.eclipse.equinox.p2.director" />
+			<arg value="-repository" />
+			<arg value="${public_icap_repo},${indigo_repo},${indigo_updates_repo},${indigo_mylin_repo},${indigo_webtools_repo}" />
+			<arg value="-installIU ${icap_java_feature},${icap_javascript_feature},${icap_mobile_feature}" />
+			<arg line="-destination ${eclipse_home}" />
+			<arg value="-nosplash" />
+			<arg value="-launcher.suppressErrors" />
+			
+		</exec>
+		-->
+		<java classname="org.eclipse.core.launcher.Main" fork="true" output="logs/installIcapFeatures.log">
+		            <classpath>
+		                <fileset dir="${eclipse_home}/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+		            </classpath>
+		            <arg line="-application org.eclipse.equinox.p2.director" />          
+			 		<arg line="-installIUs ${icap_java_feature},${icap_javascript_feature},${icap_mobile_feature}" />					           
+		            <arg line="-roaming" />
+		            <arg line="-profile SDKProfile"/>
+		            <arg line="-repository ${public_icap_repo},${indigo_repo},${indigo_updates_repo},${indigo_mylin_repo},${indigo_webtools_repo}" />
+		            <arg line="-destination ${eclipse_home}" />
+		            <arg line="-bundlepool ${eclipse_home}" />
+				            
+		</java>
+			
+		<echo message="target installIcapFeature end, public_icap_repo=${public_icap_repo}" />
+
+
+	</target>
+	
+	<target name="installIcapTestPlugins">
+			<tstamp />
+			<echo message="target installIcapTestPlugins start at ${DSTAMP}_${TSTAMP}" />
+			<exec executable="${eclipse_home}/eclipse" output="logs/install_out.txt"
+					error="logs/install_err.txt" resultproperty="installResultProp">
+				<arg value="-application" />
+				<arg value="org.eclipse.equinox.p2.director" />
+				<arg value="-repository" />
+				<arg value="${icap_test_repo},${indigo_repo},${indigo_updates_repo},${indigo_mylin_repo},${indigo_webtools_repo}" />
+				<arg value="-installIU ${icap_dt_FAT_feature}" />				
+				<arg line="-destination ${eclipse_home}" />
+				<arg value="-nosplash" />
+				<arg value="--launcher.suppressErrors" />
+				<!-- suppresses the configuration.error popup / -->
+			</exec>
+			<echo message="target installIcapTestPlugins end, icap_test_repo=${icap_test_repo}" />
+
+
+		</target>
+
+
+	<target name="installPlugin">
+		<tstamp />
+		<echo message="target installIcapFeatures start at ${DSTAMP}_${TSTAMP}" />
+		<exec executable="${eclipseDest}/${eclipseCommand}" output="logs/install_out.txt"
+				error="logs/install_err.txt" resultproperty="installResultProp">
+			<arg value="-application" />
+			<arg value="${p2_director}" />
+			<arg line="-repository http://9.181.128.122/releases/tp20130524.2141/IDE" />
+			<arg line="-destination ${eclipse_home}" />
+			<arg line="-bundlepool ${eclipse_home}" />
+			<arg value="-installIU " />
+
+			<arg value="-nosplash" />
+			<arg value="--launcher.suppressErrors" />
+			<!-- suppresses the configuration.error popup / -->
+		</exec>
+		<echo
+				message="target installIcapFeature end, installResultProp=${installResultProp}" />
+
+
+	</target>
+	
+	<target name="runFAT">
+		<ant target="ui-test" antfile="${library-file}" dir="${eclipse_home}">
+			<property name="data-dir"     value="build"/>
+			<property name="plugin-name"  value="com.ibm.ws.icap.dt.fat"/>
+			<property name="classname"    value="com.ibm.ws.icap.dt.fat.cases.ExportImportTest"/>
+		</ant>
+	</target>
+
+	<target name="all" depends="init">
+		<!--<antcall target="installEclipseTestFramework"/>
+		<antcall target="installIcapFeatures"/>
+		-->
+		<antcall target="runFAT"/>
+		
+
+	</target>
+
+</project>

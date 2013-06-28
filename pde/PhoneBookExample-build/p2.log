@@ -1,0 +1,16 @@
+Buildfile: build/build-p2.xml
+
+site2p2:
+    [mkdir] Created dir: /home/ku/eclipseUT/pde/PhoneBookExample-build/p2/test
+
+zipP2Metadata:
+      [jar] Building jar: /home/ku/eclipseUT/pde/PhoneBookExample-build/p2/test/content.jar
+      [jar] Building jar: /home/ku/eclipseUT/pde/PhoneBookExample-build/p2/test/artifacts.jar
+   [delete] Deleting: /home/ku/eclipseUT/pde/PhoneBookExample-build/p2/test/content.xml
+   [delete] Deleting: /home/ku/eclipseUT/pde/PhoneBookExample-build/p2/test/artifacts.xml
+
+build:
+BUILD SUCCESSFUL
+
+BUILD SUCCESSFUL
+Total time: 0 seconds

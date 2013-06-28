@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.7.0-b147 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-Name: PhoneBookExamplePlug-in
+Bundle-SymbolicName: PhoneBookExample; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: phonebookexample.PhoneBookExamplePlugin
+Bundle-Localization: plugin
+Bundle-ClassPath: .
+Require-Bundle: org.eclipse.ui, org.eclipse.ui.ide,org.eclipse.core.ru
+ ntime
+Eclipse-AutoStart: true
+Export-Package: phonebookexample,phonebookexample.actions,phonebookexa
+ mple.data,phonebookexample.dialogs 
+

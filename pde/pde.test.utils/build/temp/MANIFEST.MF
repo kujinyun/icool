@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.7.0-b147 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-Name: PDE Test Utilities Plug-in
+Bundle-SymbolicName: pde.test.utils; singleton:=true
+Bundle-Version: 1.0.0.201306010809
+Bundle-Localization: plugin
+Eclipse-AutoStart: true
+Export-Package: pde.test.utils
+Require-Bundle: org.eclipse.jdt.junit,org.apache.ant,org.junit
+

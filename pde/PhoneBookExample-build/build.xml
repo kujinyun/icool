@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PhoneBookExample-build" basedir="." default="all">
+	
+	<property name="workspace.dir" value="${basedir}/../.."/>
+	<property name="eclipse.zip" value="${workspace.dir}/eclipse-jee-3.7.2-x86_64.tar.gz"/>
+		
+	<property name="eclipse-home" value="${workspace.dir}/eclipse"/>	
+	
+	
+	<property name="site.dir" value="${basedir}/site" />
+	<property name="features.dir" value="features" />
+	<property name="plugins.dir" value="plugins" />
+
+	<property name="site.output" value="${site.dir}/output" />
+	<property name="site.features.path" value="${site.output}/features" />
+	<property name="site.plugins.path" value="${site.output}/plugins" />
+
+	<property file="build.properties"/>
+
+	<property name="org.eclipse.test" value="3.3.100"/>
+	<property name="library-file" value="${eclipse-home}/plugins/org.eclipse.test_3.3.100/library.xml"/>
+	<property name="junit-stylesheet" value="${eclipse-home}/plugins/org.eclipse.test_3.3.100/JUNIT.XSL" />
+
+	<property name="product_feature" value="PhoneBookExample.feature.feature.group" />
+	<property name="test_feature" value="PhoneBookExample.ut.feature.feature.group" />
+	
+	<property name="product_repo"  value="file:/home/ku/eclipseUT/pde/PhoneBookExample-build/p2/product" />
+	<property name="test_repo"  value="file:/home/ku/eclipseUT/pde/PhoneBookExample-build/p2/test" />
+	
+	<property name="indigo_repo" value="http://9.181.128.122/p2/releases/indigo" />
+	<property name="indigo_updates_repo" value="http://download.eclipse.org/eclipse/updates/3.7" />
+
+	<target name="init">
+		<tstamp>
+			<format property="site.current.time" pattern="yyyyMMddHHmm"/>
+		</tstamp>
+
+		<condition property="current.time" value="${current.time}" else="${site.current.time}">
+			<isset property="current.time" />
+		</condition>
+		<property name="build.version" value="${feature.version.major}.${current.time}"/>
+		
+		<delete dir="${eclipse-home}"/>
+		<delete dir="p2"/>
+		<delete dir="${features.dir}/target"/>
+		<delete dir="${plugins.dir}/target"/>
+		<delete dir="${site.output}" />
+
+		<delete dir="../PhoneBookExample/build" />
+		<delete dir="../PhoneBookExample-test/build" />
+		
+
+		<exec dir="${workspace.dir}" executable="tar">
+			<arg line="-xzf ${workspace.dir}/eclipse-jee-indigo-SR2-linux-gtk-x86_64.tar.gz" />
+		</exec>
+	</target>
+
+	
+	
+	
+	
+	<target name="plugins.build">
+		<mkdir dir="${plugins.dir}/target"/>
+		<ant dir="../PhoneBookExample" antfile="build.xml" target="build"/>
+		<ant dir="../PhoneBookExample-test" antfile="build.xml" target="build"/>
+		<!--<ant dir="../pde.test.utils" antfile="build.xml" target="build"/>-->
+	</target>
+
+	<target name="features.build">
+		<mkdir dir="${features.dir}/target"/>
+		<ant dir="${features.dir}" antfile="PhoneBookExample.feature/build.xml" target="dist"/>
+		<ant dir="${features.dir}" antfile="PhoneBookExample.ut.feature/build.xml" target="dist"/>
+	</target>
+
+	<target name="generateP2">
+		<java classname="org.eclipse.core.launcher.Main" fork="true" output="p2.log">
+			<classpath>
+				<fileset dir="${eclipse-home}/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+			</classpath>
+			<arg value="-application" />
+			<arg value="org.eclipse.ant.core.antRunner" />
+			<arg value="-buildfile" />
+			<arg value="build/build-p2.xml" />
+			<arg value="-Drepo.name=${repo.name}" />
+			<jvmarg value="-Dfile.encoding=UTF-8" />
+
+		</java>
+
+	</target>
+
+	<target name="build-product">
+
+		<mkdir dir="${site.output}" />
+		<mkdir dir="${site.features.path}" />
+		<mkdir dir="${site.plugins.path}" />
+		<copy tofile="${site.output}/site.xml" file="${basedir}/site/site.product.xml" >
+			<filterchain>
+				<expandproperties/>
+			</filterchain>
+		</copy>
+
+		<copy toDir="${site.features.path}">
+			<fileset dir="${basedir}/features/target">
+				<include name="**/PhoneBookExample.feature_*.jar"/>
+			</fileset>
+		</copy>
+
+		<copy toDir="${site.plugins.path}">
+			<fileset dir="${basedir}/plugins/target">
+				<include name="**/pde.test*.jar"/>
+			</fileset>
+		</copy>
+
+		<copy toDir="${site.plugins.path}">
+			<fileset dir="${basedir}/plugins/target">
+				<include name="**/PhoneBookExample_*.jar"/>
+			</fileset>
+		</copy>
+
+		<antcall target="generateP2">
+			<param name="repo.name" value="product"/>
+
+		</antcall>
+
+		<delete dir="${site.output}"/>
+
+
+	</target>
+
+	<target name="build-test">
+		<mkdir dir="${site.output}" />
+		<mkdir dir="${site.features.path}" />
+		<mkdir dir="${site.plugins.path}" />
+		<copy tofile="${site.output}/site.xml" file="${basedir}/site/site.test.xml" >
+			<filterchain>
+				<expandproperties/>
+			</filterchain>
+		</copy>
+
+		<copy toDir="${site.features.path}">
+			<fileset dir="${basedir}/features/target">
+				<include name="**/PhoneBookExample.ut.feature_*.jar"/>
+			</fileset>
+		</copy>
+
+		<copy toDir="${site.plugins.path}">
+			<fileset dir="${basedir}/plugins/target">
+				<include name="**/PhoneBookExample-test_*.jar"/>
+			</fileset>
+		</copy>
+
+		<antcall target="generateP2">
+			<param name="repo.name" value="test"/>
+
+		</antcall>
+		<delete dir="${site.output}"/>
+
+	</target>
+	
+		
+	<target name="installTestFramework" description="Install Eclipse test framework">
+				<tstamp />
+				<makeurl property="test_framework_repo" file="${workspace.dir}/eclipse-test-framework-3.7.2" />
+				<echo message="Install eclipse test framework from ${test_framework_repo} at ${DSTAMP}_${TSTAMP}" />
+				
+				 <java classname="org.eclipse.core.launcher.Main" fork="true" output="${basedir}/logs/installTestframework.log" failonerror="false" dir="${eclipse-home}"
+				            timeout="900000" resultproperty="directorcode">		
+				            <classpath>
+				                <fileset dir="${eclipse-home}/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+				            </classpath>		 		    
+				            <arg line="-application org.eclipse.equinox.p2.director" />          
+				            <arg line="-installIUs org.eclipse.test,org.eclipse.ant.optional.junit,org.eclipse.test.performance,org.eclipse.test.performance.win32,org.easymock" />				           
+				            
+				 			<arg value="-nosplash" />
+							<arg line="-profileProperties org.eclipse.update.install.features=true"/>
+				            <arg line="-repository ${test_framework_repo},${indigo_repo}" />
+				            <arg line="-destination ${eclipse-home}" />					
+					 		<arg line="-p2.os linux" />
+					        <arg line="-p2.ws gtk" />
+					        <arg line="-p2.arch x86_64" />
+							            			            
+				 </java>			
+				 <echo message="Installation of Eclipse test framework completed, result code = ${directorcode}" />
+		</target>
+	
+	<target name="installProduct" description="install Example product ">
+			<echo>installIU ${product_feature}</echo>
+			<java classname="org.eclipse.core.launcher.Main" fork="true" output="${basedir}/logs/installProduct.log" resultproperty="directorcode">
+	            <classpath>
+	                <fileset dir="${eclipse-home}/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+	            </classpath>
+				<arg line="-application org.eclipse.equinox.p2.director" />  	            
+		 		<arg line="-installIUs ${product_feature}" />
+				<arg value="-nosplash" />
+	           
+	            <arg line="-repository ${product_repo},${indigo_repo}" />
+	            <arg line="-destination ${eclipse-home}" />
+				<arg line="-p2.os linux" />
+				<arg line="-p2.ws gtk" />
+				<arg line="-p2.arch x86_64" />			            
+			</java>
+		    <echo message="installProduct completed, result code = ${directorcode}" />	
+			
+		</target>
+		
+		<target name="installTest" description="install Example test">
+			<echo> installIU ${test_feature} </echo>
+			<java classname="org.eclipse.core.launcher.Main" fork="true" output="${basedir}/logs/installTest.log" resultproperty="directorcode">
+	            <classpath>
+	                <fileset dir="${eclipse-home}/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+	            </classpath>
+				<arg line="-application org.eclipse.equinox.p2.director" />  	            
+		 		<arg line="-installIUs ${test_feature}" />
+				<arg value="-nosplash" />
+	           
+	            <arg line="-repository ${test_repo},${indigo_repo}" />
+	            <arg line="-destination ${eclipse-home}" />
+				<arg line="-p2.os linux" />
+				<arg line="-p2.ws gtk" />
+				<arg line="-p2.arch x86_64" />
+			            
+			</java>
+			<echo message="installTest completed, result code = ${directorcode}" />
+		</target>
+
+	<target name="runFAT">
+		<ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
+			<property name="data-dir"     value="build"/>
+			<property name="plugin-name"  value="PhoneBookExample-test"/>
+			<property name="classname"    value="phonebookexample.ut.AllTests"/>
+
+			<property name="os"    value="linux"/>
+			<property name="ws"    value="gtk"/>
+			<property name="arch"    value="x86_64"/>
+
+		</ant>
+	</target>
+
+	<target name="clean">
+
+	</target>
+
+	<target name="all" depends="init, plugins.build, features.build, build-product, build-test, clean">
+		
+		
+		<antcall target="installTestFramework"/>
+		<antcall target="installProduct"/>
+		<antcall target="installTest"/>
+		<antcall target="runFAT"/>
+		
+	</target>
+
+</project>

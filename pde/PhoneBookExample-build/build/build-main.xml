@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.ibm.ws.icap.dt.core" default="main">
+	<property name="eclipse-home" value="D:/eclipse" />
+
+	
+
+	<target name="main" description="run-ut">
+		<java classname="org.eclipse.core.launcher.Main" fork="true">
+			<classpath>
+				<fileset dir="${eclipse-home}/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+			</classpath>
+			<arg value="-application" />
+			<arg value="org.eclipse.ant.core.antRunner" />
+			<arg value="-buildfile" />
+			<arg value="build-p2.xml" />
+			<arg value="-Drepo.name=product" />
+			<jvmarg value="-Dfile.encoding=UTF-8" />
+
+		</java>
+	</target>
+
+</project>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PhoneBookExample.ut.feature" basedir="." default="dist">
+
+  <property file="../build.properties"/>
+  
+  <property name="feature.dir" value="${basedir}" />
+	
+  <target name="dist" depends="init, build, clean" />
+  
+  <target name="build">
+  	<property name="feature.output" value="${feature.dir}/PhoneBookExample.ut.feature/output" />
+  	
+  	<mkdir dir="${feature.output}"/>
+  	<copy toDir="${feature.output}">
+  		<fileset dir="${feature.dir}/PhoneBookExample.ut.feature">
+  			<include name="feature.xml" />
+  			<include name="feature.properties" />
+  			<exclude name="**/META-INF/*" />
+  			<exclude name="**/output/*" />
+  		</fileset>
+  		<filterchain>
+  		    <expandproperties/>
+  		</filterchain>
+  	</copy>
+  	
+  	<jar basedir="${feature.output}" destfile="${target.dir}/${ant.project.name}_${build.version}.jar" />
+  </target>
+  
+  <target name="clean">
+  	<delete dir="${feature.output}" />
+  </target>
+	
+  <target name="init">
+  	<tstamp>
+  	  	<format property="feature.current.time" pattern="yyyyMMddHHmm"/>
+  	</tstamp>
+  	  	
+  	<condition property="current.time" value="${current.time}" else="${feature.current.time}">
+  	  	<isset property="current.time" />
+  	</condition>
+  	<property name="build.version" value="${feature.version.major}.${current.time}"/>
+  	  	
+  	<condition property="target.dir" value="${target.dir}" else="${basedir}/target">
+  	  	<isset property="target.dir" />
+  	</condition>
+  	  	
+  	<mkdir dir="${target.dir}"/>
+  </target>
+
+</project>

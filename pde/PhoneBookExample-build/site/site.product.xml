@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/PhoneBookExample.feature_${build.version}.jar" id="PhoneBookExample.feature" version="${build.version}">
+      
+   </feature>
+  
+</site>
